@@ -8,23 +8,26 @@ import pandas as pd
 from io import BytesIO, StringIO
 
 app = Flask(__name__)
-Bootstrap(app) #요렇게 해줘야 적용된다.
-G = nx.read_gpickle("static/data/Whole.pickle")
-J = nx.read_gpickle("static/data/Jacard.pickle")
+Bootstrap(app) 
 
-@app.route('/') #접속할 URL
+@app.route('/') #Main URL
 def main():
-	return render_template('main.html') #예제 템플릿
+	return render_template('main.html') 
 
-@app.route('/result', methods=['POST']) #접속할 URL
+@app.route('/result', methods=['POST']) # 결과 URL
 def result():
     tGene = request.form['gene']
+
+    G = nx.read_gpickle("static/data/Whole.pickle")
+    J = nx.read_gpickle("static/data/Jacard.pickle")
 
     print("Set genes for visualization..")
     target = [tGene]
     target.extend(list(G.neighbors(target[0])))
     H = G.subgraph(target)
     Jsub = J.subgraph(target)
+    del G 
+    del J
     thre = 0.08
     epredf = [(u, v) for (u, v, d) in Jsub.edges(data=True) if d["dist"] > thre]
     print(epredf)
