@@ -12,11 +12,13 @@ from google.cloud import storage
 
 app = Flask(__name__)
 
+## 미리 데이터 로드해두기 
 with open('static/data/dict.pickle', 'rb') as handle:
     resData = pickle.load(handle)
 
 Bootstrap(app) 
 
+## 우선은 이미지를 gennect2020image 버킷에서 다운로드, gcloud app engine은 read only 이기 때문임 
 CLOUD_STORAGE_BUCKET = "gennect2020image"
 
 @app.route('/') #Main URL
@@ -39,6 +41,7 @@ def result():
     del J
     thre = 0.08
 
+    ## 특정 jacard distance 이상의 값을 사용 
     epredf = [(u, v) for (u, v, d) in Jsub.edges(data=True) if d["dist"] > thre]
     resTablePred = []
     for [u, v] in epredf:
@@ -47,6 +50,7 @@ def result():
     print("Start prediction..")
     print("prediction completed")
 
+    ## positive, negative, neutral link에 대해 각각 시각화 
     eposi = [(u, v) for (u, v, d) in H.edges(data=True) if d["weight"] > 0]
     eposiweight = np.log([d['weight'] for (u, v, d) in H.edges(data=True) if d["weight"] > 0])
     resTablePosi = []
