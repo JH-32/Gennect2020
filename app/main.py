@@ -6,7 +6,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import pickle
+import os
 from io import BytesIO, StringIO
+from google.cloud import storage
 
 app = Flask(__name__)
 
@@ -14,6 +16,8 @@ with open('static/data/dict.pickle', 'rb') as handle:
     resData = pickle.load(handle)
 
 Bootstrap(app) 
+
+CLOUD_STORAGE_BUCKET = "gennect2020image"
 
 @app.route('/') #Main URL
 def main():
@@ -67,8 +71,7 @@ def result():
             resTableNeu.append([u, v, sen, pmid])
 
     timestr = time.strftime("%Y%m%d_%H%M%S")
-    figName = "static/fig/" + tGene + timestr + ".png"
-    print(figName, "saved")
+    figName = tGene + timestr + ".png"
     plt.figure(figsize=(20, 20))
     pos = nx.circular_layout(H)
     nx.draw_networkx_nodes(H, pos, node_size=20)
@@ -84,11 +87,22 @@ def result():
 
     #return send_file(img, mimetype='image/png')
 
-    plt.savefig(figName, format="PNG", dpi=300)
+    #plt.savefig(figName, format="PNG", dpi=300)
 
+    img = BytesIO()
+    plt.savefig(img, format="PNG", dpi=300)
 
+    gcs = storage.Client()
+    bucket = gcs.get_bucket(CLOUD_STORAGE_BUCKET)
+    blob = bucket.blob(figName)
+    blob.upload_from_string(
+        img.getvalue(),
+        content_type='image/png')
+    img.close()
 
-    return render_template('result.html', fName = figName, tpred = resTablePred, tposi = resTablePosi, tnega = resTableNega, tneu = resTableNeu)
+    url = blob.public_url
+
+    return render_template('result.html', fName = url, tpred = resTablePred, tposi = resTablePosi, tnega = resTableNega, tneu = resTableNeu)
 
 if __name__ == '__main__':
 	app.run(host='0.0.0.0', debug=True)
