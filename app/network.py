@@ -16,18 +16,48 @@ negatives = ["down-regulate", "suppress", "prevent", "inhibit", "exploit"]
 
 posis = []
 negas = []
-
+reDic = {}
 for index, row in tt.iterrows():
     ## positive 또는 negative term을 가지고 있는 문장일 경우 저장 
     geneA = row[0]
     geneB = row[1]
     string = row[2]
+    pmid = row[3]
     if any(ele for ele in positives if(ele in string)):
         re = [geneA, geneB]
         posis.append(re)
+        reCur = reDic.get(geneA, {})
+        reCC = reCur.get(geneB, [])
+        if [string, pmid] not in reCC:
+            reCC.append([string, pmid])
+        reCur[geneB] = reCC
+        reDic[geneA] = reCur
+        reCur = reDic.get(geneB, {})
+        reCC = reCur.get(geneA, [])
+        if [string, pmid] not in reCC:
+            reCC.append([string, pmid])
+        reCur[geneA] = reCC
+        reDic[geneB] = reCur
     if any(ele for ele in negatives if(ele in string)):
         re = [geneA, geneB]
         negas.append(re)
+        reCur = reDic.get(geneA, {})
+        reCC = reCur.get(geneB, [])
+        if [string, pmid] not in reCC:
+            reCC.append([string, pmid])
+        reCur[geneB] = reCC
+        reDic[geneA] = reCur
+        reCur = reDic.get(geneB, {})
+        reCC = reCur.get(geneA, [])
+        if [string, pmid] not in reCC:
+            reCC.append([string, pmid])
+        reCur[geneA] = reCC
+        reDic[geneB] = reCur
+
+with open('dict.pickle', 'wb') as handle:
+    pickle.dump(reDic, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+## pickle에 결과 저장, 나중에 flask에서 결과를 보여주기 위해 사용 
 
 G = nx.Graph()
 ## networkx 객체 생성 

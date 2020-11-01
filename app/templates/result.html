@@ -3,7 +3,84 @@
 
 {% block content %}
 	<div class="container">
-	    <h1>Result</h1>
-        <p>{{ res }}</p>
+		<h1> image </h1>
+		<p>red : positive relations</p>
+		<p>yellow : neutral relations </p>
+		<p>blue : negative relations</p>
+		<p>green : inferred relations </p>
+		<p>line thickness : strength of relations </p>
+		<div class="item">
+			<img src={{ fName }} alt="Vader" style="width:100%">
+		</div>
+		<h1> Predicted </h1>
+		<table class = "table">
+			<thead>
+				<th>geneA</th>
+				<th>geneB</th>
+			</thead>
+			<tbody>
+				{% for cur in tpred %}
+				<tr>
+					{% for con in cur %}
+						<td>{{ con }} </td>
+					{% endfor %}
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+		<h1> Positives </h1>
+		<table class = "table">
+			<thead>
+				<th>geneA</th>
+				<th>geneB</th>
+				<th>abstract</th>
+				<th>pmid</th>
+			</thead>
+			<tbody>
+				{% for cur in tposi %}
+				<tr>
+					{% for con in cur %}
+						<td>{{ con }} </td>
+					{% endfor %}
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+		<h1> Negatives </h1>
+		<table class = "table">
+			<thead>
+				<th>geneA</th>
+				<th>geneB</th>
+				<th>abstract</th>
+				<th>pmid</th>
+			</thead>
+			<tbody>
+				{% for cur in tnega %}
+				<tr>
+					{% for con in cur %}
+						<td>{{ con }} </td>
+					{% endfor %}
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+		<h1> Neutral </h1>
+		<table class = "table">
+			<thead>
+				<th>geneA</th>
+				<th>geneB</th>
+				<th>abstract</th>
+				<th>pmid</th>
+			</thead>
+			<tbody>
+				{% for cur in tneu %}
+				<tr>
+					{% for con in cur %}
+						<td>{{ con }} </td>
+					{% endfor %}
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
 	</div>
 {% endblock %}

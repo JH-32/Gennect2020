@@ -5,9 +5,14 @@ import time
 import matplotlib.pyplot as plt 
 import numpy as np
 import pandas as pd
+import pickle
 from io import BytesIO, StringIO
 
 app = Flask(__name__)
+
+with open('static/data/dict.pickle', 'rb') as handle:
+    resData = pickle.load(handle)
+
 Bootstrap(app) 
 
 @app.route('/') #Main URL
@@ -29,21 +34,41 @@ def result():
     del G 
     del J
     thre = 0.08
+
     epredf = [(u, v) for (u, v, d) in Jsub.edges(data=True) if d["dist"] > thre]
-    print(epredf)
+    resTablePred = []
+    for [u, v] in epredf:
+        resTablePred.append([u, v])
 
     print("Start prediction..")
     print("prediction completed")
 
     eposi = [(u, v) for (u, v, d) in H.edges(data=True) if d["weight"] > 0]
     eposiweight = np.log([d['weight'] for (u, v, d) in H.edges(data=True) if d["weight"] > 0])
+    resTablePosi = []
+    for [u, v] in eposi:
+        try:
+            for [sen, pmid] in resData[u][v]:
+                resTablePosi.append([u, v, sen, pmid])
+        except KeyError:
+            continue
+
     enega = [(u, v) for (u, v, d) in H.edges(data=True) if d["weight"] < 0]
     enegaweight = np.log(np.negative([d['weight'] for (u, v, d) in H.edges(data=True) if d["weight"] < 0]))
+    resTableNega = []
+    for [u, v] in enega:
+        for [sen, pmid] in resData[u][v]:
+            resTableNega.append([u, v, sen, pmid])
+    
     eneu = [(u, v) for (u, v, d) in H.edges(data=True) if d["weight"] == 0]
+    resTableNeu = []
+    for [u, v] in eneu:
+        for [sen, pmid] in resData[u][v]:
+            resTableNeu.append([u, v, sen, pmid])
 
-    # timestr = time.strftime("%Y%m%d_%H%M%S")
-    # figName = "static/fig/" + tGene + timestr + ".png"
-    # print(figName, "saved")
+    timestr = time.strftime("%Y%m%d_%H%M%S")
+    figName = "static/fig/" + tGene + timestr + ".png"
+    print(figName, "saved")
     plt.figure(figsize=(20, 20))
     pos = nx.circular_layout(H)
     nx.draw_networkx_nodes(H, pos, node_size=20)
@@ -53,12 +78,17 @@ def result():
     nx.draw_networkx_edges(H, pos, edgelist = eneu, width=enegaweight, edge_color="y")
     nx.draw_networkx_edges(H, pos, edgelist = epredf, edge_color="g", style = "dashed")
 
-    img = BytesIO()
-    plt.savefig(img, format="PNG", dpi=300)
-    img.seek(0)
+    ##img = BytesIO()
+    ##plt.savefig(img, format="PNG", dpi=300)
+    ##img.seek(0)
 
-    return send_file(img, mimetype='image/png')
-    #return render_template('result.html', fName = figName)
+    #return send_file(img, mimetype='image/png')
+
+    plt.savefig(figName, format="PNG", dpi=300)
+
+
+
+    return render_template('result.html', fName = figName, tpred = resTablePred, tposi = resTablePosi, tnega = resTableNega, tneu = resTableNeu)
 
 if __name__ == '__main__':
 	app.run(host='0.0.0.0', debug=True)
