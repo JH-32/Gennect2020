@@ -66,5 +66,21 @@
 				{% endfor %}
 			</tbody>
 		</table>
+		<h1> Predicted </h1>
+		<table class = "table">
+			<thead>
+				<th>geneA</th>
+				<th>geneB</th>
+			</thead>
+			<tbody>
+				{% for cur in tpred %}
+				<tr>
+					{% for con in cur %}
+						<td>{{ con }} </td>
+					{% endfor %}
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
 	</div>
 {% endblock %}
