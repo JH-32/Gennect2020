@@ -80,16 +80,28 @@ def resultai():
     tGene = request.form['gene']
 
     G = nx.read_gpickle("static/data/Whole.pickle")
-    J = nx.read_gpickle("static/data/Jacard.pickle")
+
+    with open(pkl_filename, 'rb') as file:
+        pickle_model = pickle.load(file)
 
     print("Set genes for visualization..")
     target = [tGene]
     target.extend(list(G.neighbors(target[0])))
     H = G.subgraph(target)
-    Jsub = J.subgraph(target)
+
+    pref_train = list(nx.preferential_attachment(G, target))
+    jacc_train = list(nx.jaccard_coefficient(G, target))
+
+    df_train = []
+    for i in range(len(train)):
+        cur = [pref_train[i][2], jacc_train[i][2]]
+        df_train.append(cur)
+    
+    df_train = pd.DataFrame(df_train, columns = ["pref", "jacc"])
     del G 
-    del J
     thre = 0.08
+
+
 
     ## 특정 jacard distance 이상의 값을 사용 
     epredf = [(u, v) for (u, v, d) in Jsub.edges(data=True) if d["dist"] > thre]
@@ -137,7 +149,7 @@ def resultai():
 
     plt.savefig(figName, format="PNG", dpi=300)
 
-    return render_template('result.html', fName = figName, tpred = resTablePred, tposi = resTablePosi, tnega = resTableNega, tneu = resTableNeu)
+    return render_template('resultai.html', fName = figName, tpred = resTablePred, tposi = resTablePosi, tnega = resTableNega, tneu = resTableNeu)
 
 
 if __name__ == '__main__':
