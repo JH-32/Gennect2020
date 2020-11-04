@@ -2,6 +2,8 @@ from flask import Flask, render_template, request, url_for, send_file
 from flask_bootstrap import Bootstrap
 import networkx as nx 
 import time
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt 
 import numpy as np
 import pandas as pd
@@ -81,36 +83,49 @@ def resultai():
 
     G = nx.read_gpickle("static/data/Whole.pickle")
 
-    with open(pkl_filename, 'rb') as file:
+    with open("static/data/pickle_model.pkl", 'rb') as file:
         pickle_model = pickle.load(file)
 
     print("Set genes for visualization..")
     target = [tGene]
     target.extend(list(G.neighbors(target[0])))
+    target_edges = []
+    GAS = []
+    GBS = []
+    for GeneA in target:
+        for GeneB in target:
+            if GeneA == GeneB:
+                continue
+            target_edges.append((GeneA, GeneB))
+            GAS.append(GeneA)
+            GBS.append(GeneB)
     H = G.subgraph(target)
 
-    pref_train = list(nx.preferential_attachment(G, target))
-    jacc_train = list(nx.jaccard_coefficient(G, target))
+    pref_train = list(nx.preferential_attachment(G, target_edges))
+    jacc_train = list(nx.jaccard_coefficient(G, target_edges))
 
     df_train = []
-    for i in range(len(train)):
+    for i in range(len(target_edges)):
         cur = [pref_train[i][2], jacc_train[i][2]]
         df_train.append(cur)
     
     df_train = pd.DataFrame(df_train, columns = ["pref", "jacc"])
     del G 
-    thre = 0.08
 
+    pred = pickle_model.predict(df_train)
+    prob = pickle_model.predict_proba(df_train)[:, 1]
 
+    df_train["GeneA"] = GAS
+    df_train["GeneB"] = GBS
+    df_train["Prob"] = prob
+    df_train["pred"] = pred
 
-    ## 특정 jacard distance 이상의 값을 사용 
-    epredf = [(u, v) for (u, v, d) in Jsub.edges(data=True) if d["dist"] > thre]
-    resTablePred = []
-    for [u, v] in epredf:
-        resTablePred.append([u, v])
+    df_train = df_train[df_train["pred"] == 1]
 
-    print("Start prediction..")
-    print("prediction completed")
+    epredf = []
+    for i in range(len(target_edges)):
+        if prob[i] == 1:
+            epredf.append(target_edges[i])
 
     ## positive, negative, neutral link에 대해 각각 시각화 
     eposi = [(u, v) for (u, v, d) in H.edges(data=True) if d["weight"] > 0]
@@ -149,7 +164,7 @@ def resultai():
 
     plt.savefig(figName, format="PNG", dpi=300)
 
-    return render_template('resultai.html', fName = figName, tpred = resTablePred, tposi = resTablePosi, tnega = resTableNega, tneu = resTableNeu)
+    return render_template('resultai.html', fName = figName, tpred = df_train.values.tolist(), tposi = resTablePosi, tnega = resTableNega, tneu = resTableNeu)
 
 
 if __name__ == '__main__':
