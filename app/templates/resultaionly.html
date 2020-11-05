@@ -1,0 +1,32 @@
+{% extends "bootstrap/base.html" %}
+{% block title %}Main{% endblock %}
+
+{% block content %}
+	<div class="container">
+		<h1> image </h1>
+		<p>green : inferred relations </p>
+		<div class="item">
+			<img src={{ fName }} alt="Vader" style="width:100%">
+		</div>
+		<h1> Predicted </h1>
+		<table class = "table">
+			<thead>
+				<th>Pref. attatchment</th>
+				<th>Jacard Distance</th>
+				<th>geneA</th>
+				<th>geneB</th>
+				<th>Prob</th>
+				<th>Pred</th>
+			</thead>
+			<tbody>
+				{% for cur in tpred %}
+				<tr>
+					{% for con in cur %}
+						<td>{{ con }} </td>
+					{% endfor %}
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+{% endblock %}
