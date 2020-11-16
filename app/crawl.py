@@ -105,8 +105,12 @@ if __name__ == "__main__":
         meta.append(tmpMeta)
         print(tmpMeta)
         
-        if idx % 500 == 0:
-            tt = pd.DataFrame(meta)
-            tt.to_excel('drive/My Drive/Data/meta_' + str(idx) + '.xlsx', header = False, index = False)
-            ttt = pd.DataFrame(resSen)
-            ttt.to_excel('drive/My Drive/Data/res_' + str(idx) + '.xlsx', header = False, index = False)    
+        # if idx % 500 == 0:
+        #     tt = pd.DataFrame(meta)
+        #     tt.to_excel('drive/My Drive/Data/meta_' + str(idx) + '.xlsx', header = False, index = False)
+        #     ttt = pd.DataFrame(resSen)
+        #     ttt.to_excel('drive/My Drive/Data/res_' + str(idx) + '.xlsx', header = False, index = False)    
+    tt = pd.DataFrame(meta)
+    tt.to_excel('drive/My Drive/Data/meta_' + str(idx) + '.xlsx', header = False, index = False)
+    ttt = pd.DataFrame(resSen)
+    ttt.to_excel('drive/My Drive/Data/res_' + str(idx) + '.xlsx', header = False, index = False)   

@@ -53,14 +53,20 @@ def result():
     enegaweight = np.negative([d['weight'] for (u, v, d) in H.edges(data=True) if d["weight"] < 0])
     resTableNega = []
     for [u, v] in enega:
-        for [sen, pmid] in resData[u][v]:
-            resTableNega.append([u, v, sen, pmid])
+        try:
+            for [sen, pmid] in resData[u][v]:
+                resTablePosi.append([u, v, sen, pmid])
+        except KeyError:
+            continue
     
     eneu = [(u, v) for (u, v, d) in H.edges(data=True) if d["weight"] == 0]
     resTableNeu = []
     for [u, v] in eneu:
-        for [sen, pmid] in resData[u][v]:
-            resTableNeu.append([u, v, sen, pmid])
+        try:
+            for [sen, pmid] in resData[u][v]:
+                resTablePosi.append([u, v, sen, pmid])
+        except KeyError:
+            continue
 
     timestr = time.strftime("%Y%m%d_%H%M%S")
     figName = "static/fig/" + tGene + timestr + ".png"
