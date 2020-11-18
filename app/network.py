@@ -2,6 +2,7 @@ import pandas as pd
 import networkx as nx
 import matplotlib.pyplot as plt
 import numpy as np
+import pickle
 
 """
     1. Crawl 결과에서 positive 텀과 negative 텀이 포함된 문장을 다시 골라내어 이들을 network 형태로 저장 
