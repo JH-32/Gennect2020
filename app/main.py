@@ -132,7 +132,7 @@ def resultai():
 
     epredf = []
     for i in range(len(target_edges)):
-        if prob[i] == 1:
+        if pred[i] == 1:
             epredf.append(target_edges[i])
 
     ## positive, negative, neutral link에 대해 각각 시각화 
@@ -225,11 +225,18 @@ def resultaionly():
     df_train["pred"] = pred
 
     df_train = df_train[df_train["pred"] == 1]
+    print(df_train)
 
+    print(target_edges)
+    print(prob)
+    print(pred)
     epredf = []
     for i in range(len(target_edges)):
-        if prob[i] == 1:
+        if pred[i] == 1:
+            print(prob[i])
             epredf.append(target_edges[i])
+
+    print(epredf)
 
     timestr = time.strftime("%Y%m%d_%H%M%S")
     figName = "static/fig/" + tGene + timestr + ".png"
