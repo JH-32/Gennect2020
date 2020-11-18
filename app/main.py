@@ -50,21 +50,23 @@ def result():
             continue
 
     enega = [(u, v) for (u, v, d) in H.edges(data=True) if d["weight"] < 0]
+    print(enega)
     enegaweight = np.negative([d['weight'] for (u, v, d) in H.edges(data=True) if d["weight"] < 0])
     resTableNega = []
     for [u, v] in enega:
         try:
             for [sen, pmid] in resData[u][v]:
-                resTablePosi.append([u, v, sen, pmid])
+                resTableNega.append([u, v, sen, pmid])
         except KeyError:
             continue
     
     eneu = [(u, v) for (u, v, d) in H.edges(data=True) if d["weight"] == 0]
+    print(eneu)
     resTableNeu = []
     for [u, v] in eneu:
         try:
             for [sen, pmid] in resData[u][v]:
-                resTablePosi.append([u, v, sen, pmid])
+                resTableNeu.append([u, v, sen, pmid])
         except KeyError:
             continue
 
